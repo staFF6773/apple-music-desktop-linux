@@ -7,6 +7,7 @@ A native desktop application for Linux that allows you to access Apple Music fro
 - **Native webview**: Access Apple Music directly from the application
 - **Linux support**: Optimized for Linux systems
 - **TypeScript**: Fully typed and maintainable code
+- **Cookie storage**: Persistent storage for user sessions and preferences
 
 ## Installation
 
