@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, shell, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, Menu, shell, ipcMain, dialog, session } from 'electron';
 import * as path from 'path';
 
 // Enable webview support
@@ -79,6 +79,63 @@ function createMenu(): void {
       ]
     },
     {
+      label: 'Cookies',
+      submenu: [
+        {
+          label: 'Clear All Cookies',
+          accelerator: 'Ctrl+Shift+Delete',
+          click: async () => {
+            try {
+              await session.defaultSession.clearStorageData({
+                storages: ['cookies']
+              });
+              // Reload the webview to reflect changes
+              if (mainWindow) {
+                mainWindow.webContents.send('cookies-cleared');
+              }
+            } catch (error) {
+              console.error('Error clearing cookies:', error);
+            }
+          }
+        },
+        {
+          label: 'Reload Page',
+          accelerator: 'Ctrl+R',
+          click: () => {
+            if (mainWindow) {
+              mainWindow.webContents.send('reload-requested');
+            }
+          }
+        },
+        {
+          label: 'Open Cookies Location',
+          click: () => {
+            // Get the user data path where cookies are stored
+            const userDataPath = app.getPath('userData');
+            shell.openPath(userDataPath);
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Cookie Information',
+          click: async () => {
+            try {
+              const cookies = await session.defaultSession.cookies.get({});
+              const cookieCount = cookies.length;
+              dialog.showMessageBox(mainWindow!, {
+                type: 'info',
+                title: 'Cookie Information',
+                message: `Total Cookies: ${cookieCount}`,
+                detail: `The application currently has ${cookieCount} cookies stored. Use "Clear All Cookies" to remove them all.`
+              });
+            } catch (error) {
+              console.error('Error getting cookie info:', error);
+            }
+          }
+        }
+      ]
+    },
+    {
       label: 'Window',
       submenu: [
         { role: 'minimize', label: 'Minimize' },
@@ -143,4 +200,57 @@ ipcMain.handle('get-app-version', () => {
 
 ipcMain.handle('get-app-name', () => {
   return app.getName();
+});
+
+// Cookie management handlers
+ipcMain.handle('get-cookies', async (event, url: string) => {
+  try {
+    const cookies = await session.defaultSession.cookies.get({ url });
+    return cookies;
+  } catch (error) {
+    console.error('Error getting cookies:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('set-cookie', async (event, cookieDetails: Electron.CookiesSetDetails) => {
+  try {
+    await session.defaultSession.cookies.set(cookieDetails);
+    return true;
+  } catch (error) {
+    console.error('Error setting cookie:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('remove-cookie', async (event, url: string, name: string) => {
+  try {
+    await session.defaultSession.cookies.remove(url, name);
+    return true;
+  } catch (error) {
+    console.error('Error removing cookie:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('clear-all-cookies', async (event) => {
+  try {
+    await session.defaultSession.clearStorageData({
+      storages: ['cookies']
+    });
+    return true;
+  } catch (error) {
+    console.error('Error clearing cookies:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('get-all-cookies', async (event) => {
+  try {
+    const cookies = await session.defaultSession.cookies.get({});
+    return cookies;
+  } catch (error) {
+    console.error('Error getting all cookies:', error);
+    throw error;
+  }
 });
