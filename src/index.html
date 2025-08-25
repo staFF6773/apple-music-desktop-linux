@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Music Desktop</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+        <!-- Main Content -->
+        <main class="app-main">
+
+            <!-- Apple Music Webview -->
+            <webview 
+                id="appleMusicWebview" 
+                src="https://music.apple.com" 
+                class="music-webview"
+                allowpopups="false"
+                webpreferences="contextIsolation=yes, nodeIntegration=no, webSecurity=yes">
+            </webview>
+        </main>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
