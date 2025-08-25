@@ -33,6 +33,9 @@ async function initApp(): Promise<void> {
         // Setup control button listeners
         setupControlListeners();
         
+        // Setup menu event listeners
+        setupMenuEventListeners();
+        
         // Setup retry button listener
         if (retryBtn) {
             retryBtn.addEventListener('click', handleRetry);
@@ -44,6 +47,28 @@ async function initApp(): Promise<void> {
         console.error('Failed to initialize app:', error);
         showError('Failed to initialize application');
     }
+}
+
+// Setup menu event listeners
+function setupMenuEventListeners(): void {
+    // Listen for cookies cleared event from menu
+    window.electronAPI.onCookiesCleared(() => {
+        console.log('Cookies cleared from menu');
+        // Reload the webview to reflect cookie changes
+        if (webview) {
+            webview.reload();
+            updateStatus('Cookies cleared, reloading...');
+        }
+    });
+    
+    // Listen for reload requested event from menu
+    window.electronAPI.onReloadRequested(() => {
+        console.log('Reload requested from menu');
+        if (webview) {
+            webview.reload();
+            updateStatus('Reloading...');
+        }
+    });
 }
 
 // Setup webview event listeners
@@ -268,3 +293,5 @@ window.addEventListener('focus', () => {
     isLoading: () => isLoading,
     hasError: () => hasError
 };
+
+
