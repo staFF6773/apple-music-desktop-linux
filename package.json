@@ -1,0 +1,41 @@
+{
+  "name": "apple-music-desktop-linux",
+  "version": "1.0.0",
+  "description": "Apple Music Desktop App for Linux using Electron",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "postinstall": "sudo chown root:root node_modules/electron/dist/chrome-sandbox && sudo chmod 4755 node_modules/electron/dist/chrome-sandbox",
+    "fix-sandbox": "sudo chown root:root node_modules/electron/dist/chrome-sandbox && sudo chmod 4755 node_modules/electron/dist/chrome-sandbox",
+    "start": "bun run build && electron .",
+    "dev": "concurrently \"bun run watch\" \"electron .\"",
+    "package": "bun run build && electron-builder",
+    "dist": "bun run build && electron-builder --publish=never"
+  },
+  "keywords": ["apple-music", "electron", "linux", "desktop"],
+  "author": "staFF6773",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "concurrently": "^8.0.0",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.0.0",
+    "typescript": "^5.0.0"
+  },
+  "build": {
+    "appId": "com.yourname.apple-music-desktop",
+    "productName": "Apple Music Desktop",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*"
+    ],
+    "linux": {
+      "target": "AppImage",
+      "category": "AudioVideo"
+    }
+  }
+}
